@@ -5,8 +5,8 @@ import MainGame from "./scenes/mainGame/mainGame"
 const config = {
   type: Phaser.AUTO,
   parent: "capman-galaxy-infinity",
-  width: 800,
-  height: 600,
+  width: screen.width,
+  height: screen.height,
   scene: [MainGame]
 };
 
