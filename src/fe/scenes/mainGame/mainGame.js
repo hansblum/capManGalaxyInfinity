@@ -1,23 +1,28 @@
-import Phaser from "phaser";
-import logoImg from "../../assets/img/utils/bg/Intro_Screen_background.png";
+import Phaser from 'phaser';
+import Hero from 'Characters/hero';
+import heroIMG from 'Assets/img/characters/heros/Jet-top.svg';
 
 export default class MainGame extends Phaser.Scene {
     constructor() {
         super({key: 'mainGame', active: true})
     }
     preload() {
-        this.load.image("logo", logoImg);
+        this.load.image('hero', heroIMG);
     }
     create() {
-        const logo = this.add.image(400, 150, "logo");
+
+        let keys = {
+            up: this.input.keyboard.addKey('W'),
+            left: this.input.keyboard.addKey('A'),
+            down: this.input.keyboard.addKey('S'),
+            right: this.input.keyboard.addKey('D'),
+        }
+
+        this._heros = [];
+        this._heros.push(new Hero(this, 700, 700, 'hero', keys))
       
-        this.tweens.add({
-          targets: logo,
-          y: 450,
-          duration: 2000,
-          ease: "Power2",
-          yoyo: true,
-          loop: -1
-        });
+    }
+    update () {
+        this._heros[0].update();
     }
 }

@@ -8,6 +8,12 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'main.js'
   },
+  resolve: {
+    alias: {
+      Characters: path.resolve(__dirname, 'src/fe/characters/'),
+      Assets: path.resolve(__dirname, 'src/fe/assets/')
+    }
+  },
   module: {
     rules: [
       {

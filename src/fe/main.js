@@ -1,12 +1,19 @@
-import Phaser from "phaser";
+import Phaser from 'phaser';
 
-import MainGame from "./scenes/mainGame/mainGame"
+import MainGame from './scenes/mainGame/mainGame';
 
 const config = {
   type: Phaser.AUTO,
-  parent: "capman-galaxy-infinity",
+  parent: 'capman-galaxy-infinity',
   width: screen.width,
   height: screen.height,
+  physics:{
+    default: 'arcade',
+    arcade: {
+      
+      debug: false
+    }
+  },
   scene: [MainGame]
 };
 
