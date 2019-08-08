@@ -7,7 +7,9 @@ export default class Hero extends Phaser.GameObjects.Sprite {
         scene.add.existing(this);
         this.lives = 3
         this.config = config
+        this.scale = 0.3
         this.keys = this.config.keys;
+        this.body.setCollideWorldBounds(true);
         this.bullets = scene.physics.add.group({
             defaultKey: 'heroDefaultBullet',
             maxSize: 10

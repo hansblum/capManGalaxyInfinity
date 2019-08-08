@@ -20,6 +20,7 @@ export default class MainGame extends Phaser.Scene {
         this.load.image('eyeUfo', eyeUfo)
     }
     create() {
+        this.physics.world.setBoundsCollision(true, true, true, true);
         let keys = {
             up: this.input.keyboard.addKey('W'),
             left: this.input.keyboard.addKey('A'),
@@ -44,12 +45,24 @@ export default class MainGame extends Phaser.Scene {
             this.spawnNewEnemys({
                 startingPosition:{x:100, y:100},
                 spacer: {x:100, y:100},
-                texture:'eyeUfo'
+                texture:'eyeUfo',
+                speed: 100,
+                decentSpeed: 20
             })
         );
+
+        this.physics.world.on('worldbounds', () => this.enemyHitWorldBounds());
     }
     update () {
         this.heroGroup.getChildren()[0].update();
+        this.enemyGroup.getChildren().forEach(element => {
+            element.update();
+        });
+    }
+    enemyHitWorldBounds () {
+        this.enemyGroup.getChildren().forEach(element => {
+            element.goDownToggleDirection();
+        });
     }
     spawnNewEnemys (config) {
         let enemys = [];
@@ -65,7 +78,7 @@ export default class MainGame extends Phaser.Scene {
                 currentPosition.y = currentPosition.y + config.spacer.y;
                 currentPosition.x = config.startingPosition.x;
             } else if (character === '1'){
-                enemys.push(new Enemy(this, currentPosition.x, currentPosition.y, config.texture, {}));
+                enemys.push(new Enemy(this, currentPosition.x, currentPosition.y, config.texture, config));
                 currentPosition.x = currentPosition.x + config.spacer.x;
             }
         });
