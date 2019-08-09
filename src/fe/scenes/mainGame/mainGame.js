@@ -52,17 +52,41 @@ export default class MainGame extends Phaser.Scene {
         );
 
         this.physics.world.on('worldbounds', () => this.enemyHitWorldBounds());
+        this.physics.add.overlap(this.heroGroup.getChildren()[0].bullets, this.enemyGroup, this.bulletHitEnemy, null, this);
     }
     update () {
         this.heroGroup.getChildren()[0].update();
         this.enemyGroup.getChildren().forEach(element => {
             element.update();
         });
+        if(this.enemyGroup.countActive() === 0) {
+            this.nextPhase()
+        }
+    }
+    nextPhase () {
+        //clean up bullets before new wave
+        this.heroGroup.getChildren()[0].bullets.getChildren().forEach(bullet =>{
+            this.heroGroup.getChildren()[0].bullets.killAndHide(bullet);
+        })
+        this.enemyGroup.clear(true, true);
+        this.enemyGroup.addMultiple(this.spawnNewEnemys({
+            startingPosition:{x:100, y:100},
+            spacer: {x:100, y:100},
+            texture:'eyeUfo',
+            speed: 100,
+            decentSpeed: 20
+        }), true)
     }
     enemyHitWorldBounds () {
         this.enemyGroup.getChildren().forEach(element => {
             element.goDownToggleDirection();
         });
+    }
+    bulletHitEnemy(bullet, enemy){
+        if(bullet.active && enemy.active){
+            this.enemyGroup.killAndHide(enemy);
+            this.heroGroup.getChildren()[0].bullets.killAndHide(bullet)
+        }
     }
     spawnNewEnemys (config) {
         let enemys = [];
