@@ -3,6 +3,7 @@ import Hero from 'Characters/hero';
 import Enemy from 'Characters/enemy';
 import heroIMG from 'Assets/img/characters/heros/Jet-top.svg';
 import heroBullet from 'Assets/img/bullets/bullet.png'
+import explode from 'Assets/img/bullets/explode.png'
 import eyeUfo from 'Assets/img/characters/baddies/bug1.svg'
 
 const spawnOrder = '111111111111#'+
@@ -18,6 +19,10 @@ export default class MainGame extends Phaser.Scene {
         this.load.image('hero', heroIMG);
         this.load.image('heroDefaultBullet', heroBullet)
         this.load.image('eyeUfo', eyeUfo)
+        this.load.spritesheet('kaboom', 
+            explode,
+            { frameWidth: 128, frameHeight: 128 }
+        );
     }
     create() {
         this.physics.world.setBoundsCollision(true, true, true, true);
@@ -28,6 +33,22 @@ export default class MainGame extends Phaser.Scene {
             right: this.input.keyboard.addKey('D'),
             fire: this.input.keyboard.addKey('T'),
         }
+
+        this.anims.create({
+            key: 'explode',
+            frames: this.anims.generateFrameNumbers( 'kaboom', {
+                start: 0,
+                end: 15
+            }),
+            frameRate: 32,
+            repeat: 0,
+            hideOnComplete: true
+        });
+
+        this.explosions = this.add.group({
+            defaultKey: 'kaboom',
+            maxSize: 30
+        });
 
         let _heros = [];
         _heros.push(new Hero(this, screen.width /2, screen.height - 100, 'hero', {
@@ -51,7 +72,13 @@ export default class MainGame extends Phaser.Scene {
             })
         );
 
-        this.physics.world.on('worldbounds', () => this.enemyHitWorldBounds());
+        this.physics.world.on('worldbounds', (element) => {
+            console.log(element.gameObject instanceof Enemy, );
+            if(element.gameObject instanceof Enemy && element.gameObject.active){
+                this.enemyHitWorldBounds()
+            }
+            
+        });
         this.physics.add.overlap(this.heroGroup.getChildren()[0].bullets, this.enemyGroup, this.bulletHitEnemy, null, this);
     }
     update () {
@@ -84,6 +111,16 @@ export default class MainGame extends Phaser.Scene {
     }
     bulletHitEnemy(bullet, enemy){
         if(bullet.active && enemy.active){
+
+            let explosion = this.explosions.get().setActive( true );
+            explosion.on('animationcomplete', ()=> explosion.destroy());
+            // Place the explosion on the screen, and play the animation.
+            explosion.setOrigin( 0.5, 0.5 );
+            explosion.x = enemy.x;
+            explosion.y = enemy.y;
+            explosion.play( 'explode' );
+
+
             this.enemyGroup.killAndHide(enemy);
             this.heroGroup.getChildren()[0].bullets.killAndHide(bullet)
         }
