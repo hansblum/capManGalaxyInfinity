@@ -11,6 +11,7 @@ module.exports = {
   resolve: {
     alias: {
       Characters: path.resolve(__dirname, 'src/fe/characters/'),
+      Fx: path.resolve(__dirname, 'src/fe/fx/'),
       Assets: path.resolve(__dirname, 'src/fe/assets/')
     }
   },
@@ -24,7 +25,7 @@ module.exports = {
         }
       },
       {
-        test: /\.(gif|png|jpe?g|svg|xml|json)$/i,
+        test: /\.(gif|png|jpe?g|svg|xml|ogg|wav|json)$/i,
         use: "file-loader"
       }
     ]

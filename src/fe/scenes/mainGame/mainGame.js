@@ -1,10 +1,12 @@
 import Phaser from 'phaser';
 import Hero from 'Characters/hero';
 import Enemy from 'Characters/enemy';
+import SFX from 'Fx/sfx';
 import heroIMG from 'Assets/img/characters/heros/Jet-top.svg';
 import heroBullet from 'Assets/img/bullets/bullet.png'
 import explode from 'Assets/img/bullets/explode.png'
-import eyeUfo from 'Assets/img/characters/baddies/bug1.svg'
+import eyeUfo from 'Assets/img/characters/baddies/bug1.svg';
+
 
 const spawnOrder = '111111111111#'+
                    '100011110001#'+
@@ -14,6 +16,7 @@ const spawnOrder = '111111111111#'+
 export default class MainGame extends Phaser.Scene {
     constructor() {
         super({key: 'mainGame', active: true})
+        this.sfx = new SFX(this);
     }
     preload() {
         this.load.image('hero', heroIMG);
@@ -23,8 +26,11 @@ export default class MainGame extends Phaser.Scene {
             explode,
             { frameWidth: 128, frameHeight: 128 }
         );
+
+        this.sfx.preLoad();
     }
     create() {
+        this.sfx.create();
         this.physics.world.setBoundsCollision(true, true, true, true);
         let keys = {
             up: this.input.keyboard.addKey('W'),
@@ -71,9 +77,9 @@ export default class MainGame extends Phaser.Scene {
                 decentSpeed: 20
             })
         );
+        this.sfx.heroSongIntro.play();
 
         this.physics.world.on('worldbounds', (element) => {
-            console.log(element.gameObject instanceof Enemy, );
             if(element.gameObject instanceof Enemy && element.gameObject.active){
                 this.enemyHitWorldBounds()
             }
@@ -111,7 +117,7 @@ export default class MainGame extends Phaser.Scene {
     }
     bulletHitEnemy(bullet, enemy){
         if(bullet.active && enemy.active){
-
+            this.sfx.impact.play();
             let explosion = this.explosions.get().setActive( true );
             explosion.on('animationcomplete', ()=> explosion.destroy());
             // Place the explosion on the screen, and play the animation.
@@ -119,8 +125,6 @@ export default class MainGame extends Phaser.Scene {
             explosion.x = enemy.x;
             explosion.y = enemy.y;
             explosion.play( 'explode' );
-
-
             this.enemyGroup.killAndHide(enemy);
             this.heroGroup.getChildren()[0].bullets.killAndHide(bullet)
         }

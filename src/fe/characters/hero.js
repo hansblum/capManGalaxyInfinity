@@ -46,6 +46,7 @@ export default class Hero extends Phaser.GameObjects.Sprite {
     shoot(pointer) {
         var bullet = this.bullets.get(pointer.x, pointer.y);
         if (bullet) {
+            this.scene.sfx.shot.play();
             bullet.setActive(true);
             bullet.setVisible(true);
             bullet.body.velocity.y = -200;
