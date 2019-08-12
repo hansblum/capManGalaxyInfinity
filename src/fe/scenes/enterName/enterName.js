@@ -12,7 +12,6 @@ export default class EnterName extends Phaser.Scene {
 
     }
     create() {
-
         this.bg = this.add.image(0, 0, 'introBG');
         this.key = this.input.keyboard.addKey('W')
 

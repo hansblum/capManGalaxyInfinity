@@ -93,6 +93,7 @@ export default class MainGame extends Phaser.Scene {
             
         });
         this.physics.add.overlap(this.heroGroup.getChildren()[0].bullets, this.enemyGroup, this.bulletHitEnemy, null, this);
+        this.gamerData.score = this.gamerData.score || 0; 
         //Creation of HUD as last because it will be over all other things
         this.hud.create(this.gamerData); 
     }
@@ -104,6 +105,7 @@ export default class MainGame extends Phaser.Scene {
         if(this.enemyGroup.countActive() === 0) {
             this.nextPhase()
         }
+        this.hud.update(this.gamerData);
     }
     nextPhase () {
         //clean up bullets before new wave
@@ -127,6 +129,7 @@ export default class MainGame extends Phaser.Scene {
     bulletHitEnemy(bullet, enemy){
         if(bullet.active && enemy.active){
             this.sfx.impact.play();
+            this.gamerData.score = this.gamerData.score + 10;
             let explosion = this.explosions.get().setActive( true );
             explosion.on('animationcomplete', ()=> explosion.destroy());
             // Place the explosion on the screen, and play the animation.
