@@ -7,12 +7,7 @@ import heroIMG from 'Assets/img/characters/heros/Jet-top.svg';
 import heroBullet from 'Assets/img/bullets/bullet.png'
 import explode from 'Assets/img/bullets/explode.png'
 import eyeUfo from 'Assets/img/characters/baddies/bug1.svg';
-
-
-const spawnOrder = '111111111111#'+
-                   '100011110001#'+
-                   '100011110001#'+
-                   '111111111111#';
+import flagEars from 'Assets/img/characters/baddies/bug2.svg';
 
 export default class MainGame extends Phaser.Scene {
     constructor() {
@@ -21,12 +16,14 @@ export default class MainGame extends Phaser.Scene {
         this.hud = new Hud(this);
     }
     init(data) {
-        this.gamerData = data;
+        this.gamerData = data.gamerData;
+        this.gameConfig = data.gameConfig;
     }
     preload() {
         this.load.image('hero', heroIMG);
         this.load.image('heroDefaultBullet', heroBullet)
         this.load.image('eyeUfo', eyeUfo)
+        this.load.image('flagEars', flagEars)
         this.load.spritesheet('kaboom', 
             explode,
             { frameWidth: 128, frameHeight: 128 }
@@ -76,13 +73,7 @@ export default class MainGame extends Phaser.Scene {
         this.enemyGroup = new Phaser.Physics.Arcade.Group(
             this.physics.world,
             this,
-            this.spawnNewEnemys({
-                startingPosition:{x:100, y:100},
-                spacer: {x:100, y:100},
-                texture:'eyeUfo',
-                speed: 100,
-                decentSpeed: 20
-            })
+            this.spawnNewEnemys(this.gameConfig.waves[0])
         );
         this.sfx.heroSongIntro.play();
 
@@ -113,13 +104,7 @@ export default class MainGame extends Phaser.Scene {
             this.heroGroup.getChildren()[0].bullets.killAndHide(bullet);
         })
         this.enemyGroup.clear(true, true);
-        this.enemyGroup.addMultiple(this.spawnNewEnemys({
-            startingPosition:{x:100, y:100},
-            spacer: {x:100, y:100},
-            texture:'eyeUfo',
-            speed: 100,
-            decentSpeed: 20
-        }), true)
+        this.enemyGroup.addMultiple(this.spawnNewEnemys(this.gameConfig.waves[1]), true)
     }
     enemyHitWorldBounds () {
         this.enemyGroup.getChildren().forEach(element => {
@@ -143,7 +128,7 @@ export default class MainGame extends Phaser.Scene {
     }
     spawnNewEnemys (config) {
         let enemys = [];
-        let spawnList = Array.from(spawnOrder);
+        let spawnList = Array.from(config.spawnOrder);
         let currentPosition = {
             x: config.startingPosition.x,
             y: config.startingPosition.y
