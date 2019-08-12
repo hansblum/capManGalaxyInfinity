@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import Hero from 'Characters/hero';
 import Enemy from 'Characters/enemy';
 import SFX from 'Fx/sfx';
+import Hud from './HUD';
 import heroIMG from 'Assets/img/characters/heros/Jet-top.svg';
 import heroBullet from 'Assets/img/bullets/bullet.png'
 import explode from 'Assets/img/bullets/explode.png'
@@ -15,8 +16,12 @@ const spawnOrder = '111111111111#'+
 
 export default class MainGame extends Phaser.Scene {
     constructor() {
-        super({key: 'mainGame', active: true})
+        super({key: 'mainGame', active: false})
         this.sfx = new SFX(this);
+        this.hud = new Hud(this);
+    }
+    init(data) {
+        this.gamerData = data;
     }
     preload() {
         this.load.image('hero', heroIMG);
@@ -28,9 +33,11 @@ export default class MainGame extends Phaser.Scene {
         );
 
         this.sfx.preLoad();
+        this.hud.preLoad();
     }
     create() {
         this.sfx.create();
+        
         this.physics.world.setBoundsCollision(true, true, true, true);
         let keys = {
             up: this.input.keyboard.addKey('W'),
@@ -86,6 +93,8 @@ export default class MainGame extends Phaser.Scene {
             
         });
         this.physics.add.overlap(this.heroGroup.getChildren()[0].bullets, this.enemyGroup, this.bulletHitEnemy, null, this);
+        //Creation of HUD as last because it will be over all other things
+        this.hud.create(this.gamerData); 
     }
     update () {
         this.heroGroup.getChildren()[0].update();

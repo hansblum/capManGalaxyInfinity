@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import MainGame from './scenes/mainGame/mainGame';
+import EnterName from './scenes/enterName/enterName';
 
 const config = {
   type: Phaser.AUTO,
@@ -14,7 +15,7 @@ const config = {
       debug: false
     }
   },
-  scene: [MainGame]
+  scene: [EnterName , MainGame]
 };
 
 const game = new Phaser.Game(config);
