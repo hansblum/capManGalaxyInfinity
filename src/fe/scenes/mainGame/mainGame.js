@@ -8,7 +8,18 @@ import heroBullet from 'Assets/img/bullets/bullet.png'
 import explode from 'Assets/img/bullets/explode.png'
 import eyeUfo from 'Assets/img/characters/baddies/bug1.svg';
 import flagEars from 'Assets/img/characters/baddies/bug2.svg';
+import hiddenWall from 'Assets/img/utils/invisible_wall.png';
 
+class HiddenWall extends Phaser.GameObjects.Sprite {
+    constructor(scene, positionX, positionY, width, height) {
+        super(scene, positionX, positionY, 'hiddenWall');
+        this.setSize(width, height,true);
+
+        this.visible = true;
+        scene.physics.world.enable(this);
+        scene.add.existing(this);
+    }
+}
 export default class MainGame extends Phaser.Scene {
     constructor() {
         super({key: 'mainGame', active: false})
@@ -23,6 +34,7 @@ export default class MainGame extends Phaser.Scene {
         this.load.image('hero', heroIMG);
         this.load.image('heroDefaultBullet', heroBullet)
         this.load.image('eyeUfo', eyeUfo)
+        this.load.image('hiddenWall', hiddenWall)
         this.load.image('flagEars', flagEars)
         this.load.spritesheet('kaboom', 
             explode,
@@ -85,6 +97,13 @@ export default class MainGame extends Phaser.Scene {
         });
         this.physics.add.overlap(this.heroGroup.getChildren()[0].bullets, this.enemyGroup, this.bulletHitEnemy, null, this);
         this.gamerData.score = this.gamerData.score || 0; 
+
+        this.hiddenWall = new HiddenWall(this, 1, screen.height - 100, screen.width, 10);
+
+
+        this.physics.add.overlap(this.enemyGroup, this.hiddenWall, this.gameOver, null, this);
+
+
         //Creation of HUD as last because it will be over all other things
         this.hud.create(this.gamerData); 
     }
@@ -110,6 +129,10 @@ export default class MainGame extends Phaser.Scene {
         this.enemyGroup.getChildren().forEach(element => {
             element.goDownToggleDirection();
         });
+    }
+    gameOver () {
+        console.log('DEAD!!!');
+        this.scene.start('enterName', {});
     }
     bulletHitEnemy(bullet, enemy){
         if(bullet.active && enemy.active){
