@@ -17,8 +17,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
         
 
     }
-    shoot(pointer) {
-        var bullet = this.bullets.get(pointer.x, pointer.y);
+    shoot(bullet) {
         if (bullet) {
             bullet.setActive(true);
             bullet.setVisible(true);

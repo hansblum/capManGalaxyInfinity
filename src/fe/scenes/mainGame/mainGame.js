@@ -5,6 +5,7 @@ import SFX from 'Fx/sfx';
 import Hud from './HUD';
 import heroIMG from 'Assets/img/characters/heros/Jet-top.svg';
 import heroBullet from 'Assets/img/bullets/bullet.png'
+import enemyBullet from 'Assets/img/bullets/enemy-bullet.png'
 import explode from 'Assets/img/bullets/explode.png'
 import eyeUfo from 'Assets/img/characters/baddies/bug1.svg';
 import flagEars from 'Assets/img/characters/baddies/bug2.svg';
@@ -31,8 +32,10 @@ export default class MainGame extends Phaser.Scene {
         this.gameConfig = data.gameConfig;
     }
     preload() {
+        
         this.load.image('hero', heroIMG);
         this.load.image('heroDefaultBullet', heroBullet)
+        this.load.image('enemyDefaultBullet', enemyBullet)
         this.load.image('eyeUfo', eyeUfo)
         this.load.image('hiddenWall', hiddenWall)
         this.load.image('flagEars', flagEars)
@@ -46,6 +49,7 @@ export default class MainGame extends Phaser.Scene {
     }
     create() {
         this.sfx.create();
+        this.timeEnemyFireCounter = this.time.now;
         
         this.physics.world.setBoundsCollision(true, true, true, true);
         let keys = {
@@ -65,6 +69,11 @@ export default class MainGame extends Phaser.Scene {
             frameRate: 32,
             repeat: 0,
             hideOnComplete: true
+        });
+
+        this.enemyBullets = this.physics.add.group({
+            defaultKey: 'enemyDefaultBullet',
+            maxSize: 60
         });
 
         this.explosions = this.add.group({
@@ -103,11 +112,11 @@ export default class MainGame extends Phaser.Scene {
 
         this.physics.add.overlap(this.enemyGroup, this.hiddenWall, this.gameOver, null, this);
 
-
         //Creation of HUD as last because it will be over all other things
         this.hud.create(this.gamerData); 
     }
     update () {
+        this.cleanEnemyBullets();
         this.heroGroup.getChildren()[0].update();
         this.enemyGroup.getChildren().forEach(element => {
             element.update();
@@ -116,6 +125,11 @@ export default class MainGame extends Phaser.Scene {
             this.nextPhase()
         }
         this.hud.update(this.gamerData);
+
+        if (this.time.now > this.timeEnemyFireCounter) {
+            this.randomEnemyFire();
+            this.timeEnemyFireCounter = this.time.now + this.gameConfig.waves[1].shootSpeed;
+        }
     }
     nextPhase () {
         //clean up bullets before new wave
@@ -169,5 +183,21 @@ export default class MainGame extends Phaser.Scene {
         });
         
         return enemys;
+    }
+    randomEnemyFire () {
+        let aliveEnemys = this.enemyGroup.getChildren().filter((enemy) =>{
+            return enemy.active
+        });
+        let shootingEnemy = aliveEnemys[Phaser.Math.Between(0, aliveEnemys.length-1)];
+        shootingEnemy.shoot(this.enemyBullets.get(shootingEnemy.x, shootingEnemy.y));
+    }
+    cleanEnemyBullets() {
+        this.enemyBullets.children.each(function(b) {
+            if (b.active) {
+                if (b.y > screen.height) {
+                    b.setActive(false);
+                }
+            }
+        }.bind(this));
     }
 }
