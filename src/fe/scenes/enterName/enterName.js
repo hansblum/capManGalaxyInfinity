@@ -30,7 +30,8 @@ export default class EnterName extends Phaser.Scene {
         if (this.key.isDown) {
             this.scene.start('mainGame', {
                 gamerData: {
-                    username: 'hackerman'
+                    username: 'hackerman',
+                    lives: 3
                 },
                 gameConfig: {
                     waves: [

@@ -10,6 +10,7 @@ import explode from 'Assets/img/bullets/explode.png'
 import eyeUfo from 'Assets/img/characters/baddies/bug1.svg';
 import flagEars from 'Assets/img/characters/baddies/bug2.svg';
 import hiddenWall from 'Assets/img/utils/invisible_wall.png';
+import ColisionHandlers from 'Utils/colisionHandlers';
 
 class HiddenWall extends Phaser.GameObjects.Sprite {
     constructor(scene, positionX, positionY, width, height) {
@@ -98,19 +99,11 @@ export default class MainGame extends Phaser.Scene {
         );
         this.sfx.heroSongIntro.play();
 
-        this.physics.world.on('worldbounds', (element) => {
-            if(element.gameObject instanceof Enemy && element.gameObject.active){
-                this.enemyHitWorldBounds()
-            }
-            
-        });
-        this.physics.add.overlap(this.heroGroup.getChildren()[0].bullets, this.enemyGroup, this.bulletHitEnemy, null, this);
         this.gamerData.score = this.gamerData.score || 0; 
 
         this.hiddenWall = new HiddenWall(this, 1, screen.height - 100, screen.width, 10);
 
-
-        this.physics.add.overlap(this.enemyGroup, this.hiddenWall, this.gameOver, null, this);
+        this.colisionHandlers = new ColisionHandlers(this);
 
         //Creation of HUD as last because it will be over all other things
         this.hud.create(this.gamerData); 
@@ -139,29 +132,16 @@ export default class MainGame extends Phaser.Scene {
         this.enemyGroup.clear(true, true);
         this.enemyGroup.addMultiple(this.spawnNewEnemys(this.gameConfig.waves[1]), true)
     }
-    enemyHitWorldBounds () {
-        this.enemyGroup.getChildren().forEach(element => {
-            element.goDownToggleDirection();
-        });
-    }
-    gameOver () {
-        console.log('DEAD!!!');
-        this.scene.start('enterName', {});
-    }
-    bulletHitEnemy(bullet, enemy){
-        if(bullet.active && enemy.active){
-            this.sfx.impact.play();
-            this.gamerData.score = this.gamerData.score + 10;
-            let explosion = this.explosions.get().setActive( true );
-            explosion.on('animationcomplete', ()=> explosion.destroy());
-            // Place the explosion on the screen, and play the animation.
-            explosion.setOrigin( 0.5, 0.5 );
-            explosion.x = enemy.x;
-            explosion.y = enemy.y;
-            explosion.play( 'explode' );
-            this.enemyGroup.killAndHide(enemy);
-            this.heroGroup.getChildren()[0].bullets.killAndHide(bullet)
-        }
+    doExplosion(gameObj) {
+        this.sfx.impact.play();
+        let explosion = this.explosions.get().setActive( true );
+        explosion.on('animationcomplete', ()=> explosion.destroy());
+        // Place the explosion on the screen, and play the animation.
+        explosion.setOrigin( 0.5, 0.5 );
+        explosion.x = gameObj.x;
+        explosion.y = gameObj.y;
+        explosion.play( 'explode' );
+
     }
     spawnNewEnemys (config) {
         let enemys = [];
